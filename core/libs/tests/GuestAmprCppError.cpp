@@ -119,6 +119,45 @@ static void CheckCopies(const LibcException::SystemErrorObject& error) {
     Require(copy.base.message == nullptr && assigned.base.message == nullptr, 44);
 }
 
+static void CheckMessageConstructor() {
+    const LibcException::CategoryObject* category = _ZSt16generic_categoryv_nid_postfix();
+    const LibcException::ErrorCode code {0, 35, category};
+    char message[] = "open failed";
+    LibcException::SystemErrorObject object {};
+    _ZNSt12system_errorC2ESt10error_codePKc_nid_postfix(&object, code, message);
+    message[0] = 'O';
+    Require(std::strcmp(TypeOf(static_cast<const void* const*>(object.base.vtable), 0)->name, "St12system_error") == 0, 50);
+    Require(std::strcmp(Slot<GuestWhat>(reinterpret_cast<const void* const*>(object.base.vtable), 2)(&object), "open failed: operation would block") == 0, 51);
+    Require(object.code.value == code.value && object.code.category == category, 52);
+    _ZNSt12system_errorD1Ev_nid_postfix(&object.base);
+
+    LibcException::SystemErrorObject complete {};
+    _ZNSt12system_errorC1ESt10error_codePKc_nid_postfix(&complete, code, "read failed");
+    Require(std::strcmp(Slot<GuestWhat>(reinterpret_cast<const void* const*>(complete.base.vtable), 2)(&complete), "read failed: operation would block") == 0, 53);
+    Require(complete.code.value == code.value && complete.code.category == category, 54);
+    _ZNSt12system_errorD1Ev_nid_postfix(&complete.base);
+
+    LibcException::SystemErrorObject unnamed {};
+    _ZNSt12system_errorC1ESt10error_codePKc_nid_postfix(&unnamed, code, "");
+    Require(std::strcmp(Slot<GuestWhat>(reinterpret_cast<const void* const*>(unnamed.base.vtable), 2)(&unnamed), "operation would block") == 0, 55);
+    _ZNSt12system_errorD1Ev_nid_postfix(&unnamed.base);
+
+    LibcException::SystemErrorObject absent {};
+    _ZNSt12system_errorC2ESt10error_codePKc_nid_postfix(&absent, code, nullptr);
+    Require(std::strcmp(Slot<GuestWhat>(reinterpret_cast<const void* const*>(absent.base.vtable), 2)(&absent), "operation would block") == 0, 56);
+    _ZNSt12system_errorD1Ev_nid_postfix(&absent.base);
+
+    const LibcException::ErrorCode orphan {0, 35, nullptr};
+    bool threw = false;
+    try {
+        LibcException::SystemErrorObject homeless {};
+        _ZNSt12system_errorC1ESt10error_codePKc_nid_postfix(&homeless, orphan, "open failed");
+    } catch (const std::invalid_argument&) {
+        threw = true;
+    }
+    Require(threw, 57);
+}
+
 extern "C" void APS5_VABI FixtureInspect(void* object) {
     const auto& error = *static_cast<const LibcException::SystemErrorObject*>(object);
     Require(std::strcmp(TypeOf(static_cast<const void* const*>(error.base.vtable), 0)->name, "St12system_error") == 0, 10);
@@ -186,6 +225,7 @@ int main() {
     const std::array returnCodes {std::numeric_limits<int>::min(), -1, 0, 6, std::numeric_limits<int>::max()};
     for (const int code : returnCodes) CheckCErrorReturns(code);
     CatchCError(_ZTISt12system_error_nid_postfix, 5, 4);
+    CheckMessageConstructor();
     std::puts("guest _Throw_Cpp_error and _Throw_C_error system_error, generic category and range: PASS");
     return 0;
 }

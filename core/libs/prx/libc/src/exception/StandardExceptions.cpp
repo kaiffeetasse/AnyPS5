@@ -318,6 +318,7 @@ const CategoryObject SystemCategory {SystemCategoryVtable + 2};
     __cxa_throw_nid_postfix(object, reinterpret_cast<std::type_info*>(const_cast<TypeRecord*>(table.type)),
         reinterpret_cast<decltype(Header::destructor)>(DestroyGuestMessage_nid_no_patch));
 }
+std::string ErrorCodeMessage(const ErrorCode& code);
 }
 
 extern "C" {
@@ -510,6 +511,22 @@ void APS5_VABI _ZNSt12system_errorC1ERKS__nid_postfix(LibcException::SystemError
 void APS5_VABI _ZNSt12system_errorC2ERKS__nid_postfix(LibcException::SystemErrorObject* self, const LibcException::SystemErrorObject* source) {
     LibcException::Copy(&self->base, &source->base, _ZTVSt12system_error_nid_postfix);
     self->code = source->code;
+}
+void APS5_VABI _ZNSt12system_errorC1ESt10error_codePKc_nid_postfix(LibcException::SystemErrorObject* self, LibcException::ErrorCode code, const char* message) {
+    if (!code.category) throw std::invalid_argument("_Xsystem_error: null error category");
+    std::string what = message ? message : "";
+    if (!what.empty()) what += ": ";
+    what += LibcException::ErrorCodeMessage(code);
+    LibcException::Construct(&self->base, _ZTVSt12system_error_nid_postfix, what.c_str());
+    self->code = code;
+}
+void APS5_VABI _ZNSt12system_errorC2ESt10error_codePKc_nid_postfix(LibcException::SystemErrorObject* self, LibcException::ErrorCode code, const char* message) {
+    if (!code.category) throw std::invalid_argument("_Xsystem_error: null error category");
+    std::string what = message ? message : "";
+    if (!what.empty()) what += ": ";
+    what += LibcException::ErrorCodeMessage(code);
+    LibcException::Construct(&self->base, _ZTVSt12system_error_nid_postfix, what.c_str());
+    self->code = code;
 }
 LibcException::SystemErrorObject* APS5_VABI _ZNSt12system_erroraSERKS__nid_postfix(LibcException::SystemErrorObject* self, const LibcException::SystemErrorObject* source) {
     LibcException::Assign(&self->base, &source->base);

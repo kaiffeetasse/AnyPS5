@@ -28,7 +28,6 @@ The named entries below use provider-specific NID aliases to avoid interposing h
 | `_ZNSt10moneypunctIwLb1EED1Ev` | `OM0FnA7Tldk` |
 | `_ZNSt10moneypunctIwLb1EED2Ev` | `uVOxy7dQTFc` |
 | `_ZNSt12future_errorD0Ev` | `rNYLEsL7M0k` |
-| `_ZNSt12system_errorC2ESt10error_codePKc` | `oly3wSwEJ2A` |
 | `_ZNSt13bad_exceptionD0Ev` | `lX9M5u0e48k` |
 | `_ZNSt13bad_exceptionD1Ev` | `t6egllDqQ2M` |
 | `_ZNSt13bad_exceptionD2Ev` | `iWNC2tkDgxw` |
